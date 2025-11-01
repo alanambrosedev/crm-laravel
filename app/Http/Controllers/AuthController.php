@@ -27,7 +27,6 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
-            'role' => 'user',
         ]);
 
         Auth::login($user);
@@ -42,20 +41,31 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::guard('admin')->attempt($credentials)) {
             $request->session()->regenerate();
 
             $user = Auth::user();
 
-            return $user->role === 'admin' ? redirect()->route('admin.dashboard') : redirect()->route('user.dashboard');
+            return redirect()->route('admin.dashboard');
+        }
+        if (Auth::guard('web')->attempt($credentials)) {
+            $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            return redirect()->route('user.dashboard');
         }
 
-        return back()->withErrors(['email' => 'Invalid credentials.']);
+        return back()->withErrors(['email' => 'Invalid credentials or unverified account.']);
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        if (Auth::guard('admin')->check()) {
+            Auth::guard('admin')->logout();
+        } elseif (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+        }
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
