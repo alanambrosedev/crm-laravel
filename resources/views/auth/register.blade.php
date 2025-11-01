@@ -1,8 +1,10 @@
+<h2>Register</h2>
 <form method="POST" action="{{ route('register') }}">
     @csrf
-    <input type="text" name="name" placeholder="Name">
-    <input type="email" name="email" placeholder="Email">
-    <input type="password" name="password" placeholder="Password">
-    <input type="password" name="password_confirmation" placeholder="Confirm Password">
+    <input type="text" name="name" placeholder="Name" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="password" name="password_confirmation" placeholder="Confirm Password" required>
     <button type="submit">Register</button>
 </form>
+<a href="{{ route('login.form') }}">Already have an account? Login</a>

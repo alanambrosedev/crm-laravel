@@ -11,10 +11,20 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [AuthController::class, 'index'])->name('dashboard');
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AuthController::class, 'index'])->name('admin.dashboard');
+});
+Route::middleware(['auth', 'user'])->prefix('user')->group(function () {
+    Route::get('/dashboard', [AuthController::class, 'index'])->name('user.dashboard');
+});
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::resource('/clients', [ClientController::class]);
-    Route::resource('/posts', [ProjectController::class]);
-    Route::resource('/tasks', [TaskController::class]);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('clients', ClientController::class);
+    Route::resource('posts', ProjectController::class);
+});
+Route::middleware(['auth'])->group(function () {
+    Route::resource('tasks', TaskController::class);
 });
